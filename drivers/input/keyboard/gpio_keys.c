@@ -448,12 +448,8 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 		input_event(input, type, button->code, !!state);
 	}
 	input_sync(input);
-=======
 		bdata->key_state = !!state;
 		input_event(input, type, button->code, !!state);
-	}
-
-	input_sync(input);
 
 #ifdef CONFIG_INPUT_BOOSTER
 	if (button->code == KEY_HOMEPAGE)

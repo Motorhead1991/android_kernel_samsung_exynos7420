@@ -1986,7 +1986,6 @@ static int pl330_update(const struct pl330_info *pi)
 
 			/* Get going again ASAP */
 			_start(thrd);
-=======
 			rqdone = thrd->req[active].r;
 
 			if (!rqdone->infiniteloop) {
