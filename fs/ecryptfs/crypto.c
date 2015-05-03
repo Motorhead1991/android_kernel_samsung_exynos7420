@@ -2898,8 +2898,8 @@ int ecryptfs_set_f_namelen(long *namelen, long lower_namelen,
 	(*namelen) -= ECRYPTFS_FNEK_ENCRYPTED_FILENAME_PREFIX_SIZE;
 	/* Since this is the max decoded size, subtract 1 "decoded block" len */
 	(*namelen) = ecryptfs_max_decoded_size(*namelen) - 3;
-	(*namelen) -= ECRYPTFS_TAG_70_MAX_METADATA_SIZE;
-	(*namelen) -= ECRYPTFS_FILENAME_MIN_RANDOM_PREPEND_BYTES;
+	//(*namelen) -= ECRYPTFS_TAG_70_MAX_METADATA_SIZE;
+	//(*namelen) -= ECRYPTFS_FILENAME_MIN_RANDOM_PREPEND_BYTES;
 	/* Worst case is that the filename is padded nearly a full block size */
 	(*namelen) -= cipher_blocksize - 1;
 
