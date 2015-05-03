@@ -267,6 +267,7 @@ int __init psci_dt_register_idle_states(struct cpuidle_driver *drv,
 
 void __init psci_init(void)
 {
+        int err;
 	struct device_node *np;
 	const char *method;
 	u32 id;

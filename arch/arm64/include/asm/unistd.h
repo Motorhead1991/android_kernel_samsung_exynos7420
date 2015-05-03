@@ -47,7 +47,6 @@
 #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE+5)
 
 #define __NR_compat_syscalls		384
-#endif
 
 #define __ARCH_WANT_SYS_CLONE
 #include <uapi/asm/unistd.h>

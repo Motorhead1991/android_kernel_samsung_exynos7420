@@ -403,7 +403,6 @@ ENDPROC(__calc_phys_offset)
 	add	\phys, \phys, #BLOCK_SIZE		// next block
 	cmp	\start, \end
 	b.ls	9999b
-	.endif
 	.endm
 
 /*
@@ -483,7 +482,7 @@ ENDPROC(__create_page_tables)
 	.type	__switch_data, %object
 __switch_data:
 	.quad	__mmap_switched
-	.quad	__data_loc			// x4
+	//.quad	__data_loc			// x4
 	.quad	_data				// x5
 	.quad	__bss_start			// x6
 	.quad	_end				// x7

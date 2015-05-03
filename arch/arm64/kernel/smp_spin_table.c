@@ -30,7 +30,7 @@
 #include <mach/regs-pmu.h>
 
 extern void secondary_holding_pen(void);
-volatile unsigned long secondary_holding_pen_release = INVALID_HWID;
+//volatile unsigned long secondary_holding_pen_release = INVALID_HWID;
 
 static phys_addr_t cpu_release_addr[NR_CPUS];
 
@@ -40,14 +40,14 @@ static phys_addr_t cpu_release_addr[NR_CPUS];
  * in coherency or not.  This is necessary for the hotplug code to work
  * reliably.
  */
-static void write_pen_release(u64 val)
+/*static void write_pen_release(u64 val)
 {
 	void *start = (void *)&secondary_holding_pen_release;
 	unsigned long size = sizeof(secondary_holding_pen_release);
 
 	secondary_holding_pen_release = val;
 	__flush_dcache_area(start, size);
-}
+}*/
 
 #if defined(CONFIG_SOC_EXYNOS7580)
 static void secondary_power_up(unsigned int cpu)
@@ -120,7 +120,7 @@ static int smp_spin_table_cpu_boot(unsigned int cpu)
 	/*
 	 * Update the pen release flag.
 	 */
-	write_pen_release(cpu_logical_map(cpu));
+	//write_pen_release(cpu_logical_map(cpu));
 
 	/*
 	 * Send an event, causing the secondaries to read pen_release.

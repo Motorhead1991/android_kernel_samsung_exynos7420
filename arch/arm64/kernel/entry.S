@@ -509,7 +509,7 @@ ENDPROC(el0_sync)
 el0_irq:
 	kernel_entry 0
 el0_irq_naked:
-	disable_step x1
+	//disable_step x1
 	isb
 	enable_dbg
 #ifdef CONFIG_TRACE_IRQFLAGS

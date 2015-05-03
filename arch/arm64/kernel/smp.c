@@ -67,6 +67,7 @@ enum ipi_msg_type {
 	IPI_CALL_FUNC,
 	IPI_CALL_FUNC_SINGLE,
 	IPI_CPU_STOP,
+        IPI_TIMER,
 };
 
 static DEFINE_RAW_SPINLOCK(boot_lock);
@@ -84,11 +85,7 @@ static void __cpuinit write_pen_release(u64 val)
 
 	secondary_holding_pen_release = val;
 	__flush_dcache_area(start, size);
-}
-
-	IPI_TIMER,
 };
-
 /*
  * Boot a secondary CPU, and assign it the specified idle task.
  * This also gives us the initial stack to use for this CPU.
