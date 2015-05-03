@@ -292,7 +292,7 @@ static void exynos4_comp_set_mode(enum clock_event_mode mode,
 	case CLOCK_EVT_MODE_ONESHOT:
 	case CLOCK_EVT_MODE_UNUSED:
 	case CLOCK_EVT_MODE_SHUTDOWN:
-	case CLOCK_EVT_MODE_RESUME:
+	//case CLOCK_EVT_MODE_RESUME:
 		break;
 	}
 }
@@ -369,7 +369,7 @@ static void exynos4_mct_tick_start(unsigned long cycles, int periodic,
 {
 	unsigned long tmp;
 
-	exynos4_mct_tick_stop(mevt);
+        exynos4_mct_tick_stop(mevt, 0);
 
 	tmp = (1 << 31) | cycles;	/* MCT_L_UPDATE_ICNTB */
 
@@ -420,7 +420,7 @@ static inline void exynos4_tick_set_mode(enum clock_event_mode mode,
 	case CLOCK_EVT_MODE_ONESHOT:
 	case CLOCK_EVT_MODE_UNUSED:
 	case CLOCK_EVT_MODE_SHUTDOWN:
-	case CLOCK_EVT_MODE_RESUME:
+	//case CLOCK_EVT_MODE_RESUME:
 		break;
 	}
 }
@@ -435,7 +435,7 @@ static int exynos4_mct_tick_clear(struct mct_clock_event_device *mevt)
 	 * without explicit stopping.
 	 */
 	if (evt->mode != CLOCK_EVT_MODE_PERIODIC)
-		exynos4_mct_tick_stop(mevt);
+                exynos4_mct_tick_stop(mevt, 0);
 
 	/* Clear the MCT tick interrupt */
 	if (__raw_readl(reg_base + mevt->base + MCT_L_INT_CSTAT_OFFSET) & 1) {
