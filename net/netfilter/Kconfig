@@ -1088,6 +1088,7 @@ config NETFILTER_XT_MATCH_OWNER
 	Socket owner matching allows you to match locally-generated packets
 	based on who created the socket: the user or group. It is also
 	possible to check whether a socket actually exists.
+
 	Conflicts with '"quota, tag, uid" match'
 
 config NETFILTER_XT_MATCH_POLICY

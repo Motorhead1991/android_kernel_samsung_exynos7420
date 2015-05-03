@@ -33,7 +33,6 @@
 #include <linux/netdevice.h>
 #include <net/snmp.h>
 #include <net/ip.h>
-#include <net/ipv6.h>
 #include <net/icmp.h>
 #include <net/protocol.h>
 #include <linux/skbuff.h>
@@ -477,17 +476,6 @@ void ping_err(struct sk_buff *skb, int offset, u32 info)
 	int harderr;
 	int err;
 
-	/* We assume the packet has already been checked by icmp_unreach */
-
-	if (!ping_supported(icmph->type, icmph->code))
-		return;
-
-	pr_debug("ping_err(type=%04x,code=%04x,id=%04x,seq=%04x)\n", type,
-		 code, ntohs(icmph->un.echo.id), ntohs(icmph->un.echo.sequence));
-
-	sk = ping_v4_lookup(net, iph->daddr, iph->saddr,
-			    ntohs(icmph->un.echo.id), skb->dev->ifindex);
-=======
 	if (skb->protocol == htons(ETH_P_IP)) {
 		family = AF_INET;
 		type = icmp_hdr(skb)->type;

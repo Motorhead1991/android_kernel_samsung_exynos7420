@@ -236,7 +236,6 @@ nfqnl_zcopy(struct sk_buff *to, const struct sk_buff *from, int len, int hlen)
 {
 	int i, j = 0;
 	int plen = 0; /* length of skb->head fragment */
-	int ret;
 	struct page *page;
 	unsigned int offset;
 
@@ -265,11 +264,6 @@ nfqnl_zcopy(struct sk_buff *to, const struct sk_buff *from, int len, int hlen)
 	to->len += len + plen;
 	to->data_len += len + plen;
 
-	if (unlikely(skb_orphan_frags(from, GFP_ATOMIC))) {
-		skb_tx_error(from);
-		return -ENOMEM;
-	}
-
 	for (i = 0; i < skb_shinfo(from)->nr_frags; i++) {
 		if (!len)
 			break;
@@ -280,8 +274,6 @@ nfqnl_zcopy(struct sk_buff *to, const struct sk_buff *from, int len, int hlen)
 		j++;
 	}
 	skb_shinfo(to)->nr_frags = j;
-
-	return 0;
 }
 
 static int nfqnl_put_packet_info(struct sk_buff *nlskb, struct sk_buff *packet)
@@ -374,7 +366,6 @@ nfqnl_build_packet_message(struct nfqnl_instance *queue,
 			NFNL_SUBSYS_QUEUE << 8 | NFQNL_MSG_PACKET,
 			sizeof(struct nfgenmsg), 0);
 	if (!nlh) {
-		skb_tx_error(entskb);
 		kfree_skb(skb);
 		return NULL;
 	}
@@ -501,7 +492,6 @@ nfqnl_build_packet_message(struct nfqnl_instance *queue,
 	return skb;
 
 nla_put_failure:
-	skb_tx_error(entskb);
 	kfree_skb(skb);
 	net_err_ratelimited("nf_queue: error creating packet message\n");
 	return NULL;
