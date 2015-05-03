@@ -612,7 +612,7 @@ EXPORT_SYMBOL(mark_buffer_dirty_inode);
 
 void mark_buffer_dirty_inode_sync(struct buffer_head *bh, struct inode *inode)
 {
-	set_buffer_sync_flush(bh);
+	//set_buffer_sync_flush(bh);
 	mark_buffer_dirty_inode(bh, inode);
 }
 EXPORT_SYMBOL(mark_buffer_dirty_inode_sync);
@@ -1171,7 +1171,7 @@ void mark_buffer_dirty_sync(struct buffer_head *bh)
 			return;
 	}
 
-	set_buffer_sync_flush(bh);
+	//set_buffer_sync_flush(bh);
 	if (!test_set_buffer_dirty(bh)) {
 		struct page *page = bh->b_page;
 		if (!TestSetPageDirty(page)) {
@@ -3038,10 +3038,10 @@ int _submit_bh(int rw, struct buffer_head *bh, unsigned long bio_flags)
 	if (buffer_prio(bh))
 		rw |= REQ_PRIO;
 
-	if(buffer_sync_flush(bh)) {
+	/*if(buffer_sync_flush(bh)) {
 		rw |= REQ_SYNC;
 		clear_buffer_sync_flush(bh);
-	}
+	}*/
 
 	bio_get(bio);
 	submit_bio(rw, bio);

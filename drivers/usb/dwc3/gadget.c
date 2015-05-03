@@ -2437,8 +2437,8 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
 	/* Recent versions support automatic phy suspend and don't need this */
 	if (dwc->revision < DWC3_REVISION_194A) {
 		/* Resume PHYs */
-		dwc3_gadget_usb2_phy_suspend(dwc, false);
-		dwc3_gadget_usb3_phy_suspend(dwc, false);
+		//dwc3_gadget_usb2_phy_suspend(dwc, false);
+		//dwc3_gadget_usb3_phy_suspend(dwc, false);
 	}
 
 	if (dwc->gadget.speed != USB_SPEED_UNKNOWN)
@@ -2488,12 +2488,12 @@ static void dwc3_gadget_phy_suspend(struct dwc3 *dwc, u8 speed)
 {
 	switch (speed) {
 	case USB_SPEED_SUPER:
-		dwc3_gadget_usb2_phy_suspend(dwc, true);
+		//dwc3_gadget_usb2_phy_suspend(dwc, true);
 		break;
 	case USB_SPEED_HIGH:
 	case USB_SPEED_FULL:
 	case USB_SPEED_LOW:
-		dwc3_gadget_usb3_phy_suspend(dwc, true);
+		//dwc3_gadget_usb3_phy_suspend(dwc, true);
 		break;
 	}
 }

@@ -352,11 +352,11 @@ int sync_fence_wait(struct sync_fence *fence, long timeout);
  * @name:	name of new fence
  * @fence:	returns the fd of the new fence to userspace
  */
-struct sync_merge_data {
-	__s32	fd2; /* fd of second fence */
-	char	name[32]; /* name of new fence */
-	__s32	fence; /* fd on newly created fence */
-};
+/*struct sync_merge_data {
+	__s32	fd2; /* fd of second fence 
+	char	name[32]; /* name of new fence 
+	__s32	fence; /* fd on newly created fence
+};*/
 
 /**
  * struct sync_pt_info - detailed sync_pt information
@@ -367,7 +367,7 @@ struct sync_merge_data {
  * @timestamp_ns:	timestamp of status change in nanoseconds
  * @driver_data:	any driver dependant data
  */
-struct sync_pt_info {
+/*struct sync_pt_info {
 	__u32	len;
 	char	obj_name[32];
 	char	driver_name[32];
@@ -375,7 +375,7 @@ struct sync_pt_info {
 	__u64	timestamp_ns;
 
 	__u8	driver_data[0];
-};
+};*/
 
 /**
  * struct sync_fence_info_data - data returned from fence info ioctl
@@ -386,13 +386,13 @@ struct sync_pt_info {
  * @status:	status of fence. 1: signaled 0:active <0:error
  * @pt_info:	a sync_pt_info struct for every sync_pt in the fence
  */
-struct sync_fence_info_data {
+/*struct sync_fence_info_data {
 	__u32	len;
 	char	name[32];
 	__s32	status;
 
 	__u8	pt_info[0];
-};
+};*/
 
 #define SYNC_IOC_MAGIC		'>'
 
@@ -410,7 +410,7 @@ struct sync_fence_info_data {
  * the sync_pts in both the calling fd and sync_merge_data.fd2.  Returns the
  * new fence's fd in sync_merge_data.fence
  */
-#define SYNC_IOC_MERGE		_IOWR(SYNC_IOC_MAGIC, 1, struct sync_merge_data)
+//#define SYNC_IOC_MERGE		_IOWR(SYNC_IOC_MAGIC, 1, struct sync_merge_data)
 
 /**
  * DOC: SYNC_IOC_FENCE_INFO - get detailed information on a fence

@@ -6479,12 +6479,12 @@ int ufshcd_alloc_host(struct device *dev, struct ufs_hba **hba_handle)
 		goto out_error;
 	}
 
-	if (!mmio_base) {
+	/*if (!mmio_base) {
 		dev_err(dev,
 		"Invalid memory reference for mmio_base is NULL\n");
 		err = -ENODEV;
 		goto out_error;
-	}
+	}*/
 
 	host = scsi_host_alloc(&ufshcd_driver_template,
 				sizeof(struct ufs_hba));
