@@ -1238,8 +1238,6 @@ unlock:
 
 	return 0;
 
-unlock:
-	spin_unlock_irqrestore(&gpio_lock, flags);
 fail:
 	/* failures here can mean systems won't boot... */
 	pr_err("gpiochip_add: gpios %d..%d (%s) failed to register\n",
