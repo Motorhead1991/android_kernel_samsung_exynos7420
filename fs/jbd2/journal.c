@@ -374,7 +374,6 @@ repeat:
 	 * we use that version of the data for the commit.
 	 */
 	jbd_lock_bh_state(bh_in);
-repeat:
 	if (jh_in->b_frozen_data) {
 		done_copy_out = 1;
 		new_page = virt_to_page(jh_in->b_frozen_data);
