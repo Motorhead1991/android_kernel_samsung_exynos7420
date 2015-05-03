@@ -17,8 +17,6 @@ struct s3c_dma_params {
 	int channel;				/* Channel ID */
 	dma_addr_t dma_addr;
 	int dma_size;			/* Size of the DMA transfer */
-	struct samsung_dma_ops *ops;
-	char *ch_name;
 #ifdef CONFIG_ARM64
 	unsigned long ch;
 #else

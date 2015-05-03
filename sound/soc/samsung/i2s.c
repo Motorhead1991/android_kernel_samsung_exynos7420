@@ -1407,7 +1407,7 @@ static struct i2s_dai *i2s_alloc_dai(struct platform_device *pdev,
 	return i2s;
 }
 
-#ifdef CONFIG_OF
+/*#ifdef CONFIG_OF
 static int samsung_i2s_parse_dt_gpio(struct i2s_dai *i2s)
 {
 	struct device *dev = &i2s->pdev->dev;
@@ -1451,7 +1451,7 @@ static void samsung_i2s_dt_gpio_free(struct i2s_dai *dai)
 {
 }
 
-#endif
+#endif*/
 
 static const struct of_device_id exynos_i2s_match[];
 
@@ -1802,8 +1802,8 @@ static int samsung_i2s_remove(struct platform_device *pdev)
 	i2s = dev_get_drvdata(&pdev->dev);
 	other = i2s->pri_dai ? : i2s->sec_dai;
 
-	if (!i2s_pdata->cfg_gpio && pdev->dev.of_node)
-		samsung_i2s_dt_gpio_free(i2s->pri_dai);
+	/*if (!i2s_pdata->cfg_gpio && pdev->dev.of_node)
+		samsung_i2s_dt_gpio_free(i2s->pri_dai);*/
 
 	if (other) {
 		other->pri_dai = NULL;
