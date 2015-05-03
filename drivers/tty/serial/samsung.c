@@ -1468,7 +1468,6 @@ static void s3c24xx_serial_set_termios(struct uart_port *port,
 
 	wr_regl(port, S3C2410_ULCON, ulcon);
 	wr_regl(port, S3C2410_UBRDIV, quot);
-	wr_regl(port, S3C2410_UMCON, umcon);
 
 	if (ourport->info->has_divslot)
 		wr_regl(port, S3C2443_DIVSLOT, udivslot);
@@ -1740,89 +1739,6 @@ static void s3c24xx_serial_resetport(struct uart_port *port,
 	/* some delay is required after fifo reset */
 	udelay(1);
 }
-
-
-#ifdef CONFIG_CPU_FREQ
-
-static int s3c24xx_serial_cpufreq_transition(struct notifier_block *nb,
-					     unsigned long val, void *data)
-{
-	struct s3c24xx_uart_port *port;
-	struct uart_port *uport;
-
-	port = container_of(nb, struct s3c24xx_uart_port, freq_transition);
-	uport = &port->port;
-
-	/* check to see if port is enabled */
-
-	if (port->pm_level != 0)
-		return 0;
-
-	/* try and work out if the baudrate is changing, we can detect
-	 * a change in rate, but we do not have support for detecting
-	 * a disturbance in the clock-rate over the change.
-	 */
-
-	if (IS_ERR(port->baudclk))
-		goto exit;
-
-	if (port->baudclk_rate == clk_get_rate(port->baudclk))
-		goto exit;
-
-	if (val == CPUFREQ_PRECHANGE) {
-		/* we should really shut the port down whilst the
-		 * frequency change is in progress. */
-
-	} else if (val == CPUFREQ_POSTCHANGE) {
-		struct ktermios *termios;
-		struct tty_struct *tty;
-
-		if (uport->state == NULL)
-			goto exit;
-
-		tty = uport->state->port.tty;
-
-		if (tty == NULL)
-			goto exit;
-
-		termios = &tty->termios;
-
-		if (termios == NULL) {
-			dev_warn(uport->dev, "%s: no termios?\n", __func__);
-			goto exit;
-		}
-
-		s3c24xx_serial_set_termios(uport, termios, NULL);
-	}
-
- exit:
-	return 0;
-}
-
-static inline int s3c24xx_serial_cpufreq_register(struct s3c24xx_uart_port *port)
-{
-	port->freq_transition.notifier_call = s3c24xx_serial_cpufreq_transition;
-
-	return cpufreq_register_notifier(&port->freq_transition,
-					 CPUFREQ_TRANSITION_NOTIFIER);
-}
-
-static inline void s3c24xx_serial_cpufreq_deregister(struct s3c24xx_uart_port *port)
-{
-	cpufreq_unregister_notifier(&port->freq_transition,
-				    CPUFREQ_TRANSITION_NOTIFIER);
-}
-
-#else
-static inline int s3c24xx_serial_cpufreq_register(struct s3c24xx_uart_port *port)
-{
-	return 0;
-}
-
-static inline void s3c24xx_serial_cpufreq_deregister(struct s3c24xx_uart_port *port)
-{
-}
-#endif
 
 /* s3c24xx_serial_init_port
  *
@@ -2510,7 +2426,6 @@ s3c24xx_serial_get_options(struct uart_port *port, int *baud,
 	unsigned int ucon;
 	unsigned int ubrdiv;
 	unsigned long rate;
-	unsigned int clk_sel;
 	char clk_name[MAX_CLK_NAME_LENGTH];
 
 	ulcon  = rd_regl(port, S3C2410_ULCON);

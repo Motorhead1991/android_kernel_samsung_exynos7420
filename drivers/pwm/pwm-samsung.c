@@ -192,8 +192,6 @@ static unsigned long pwm_calc_tin(struct pwm_device *pwm, unsigned long freq)
 	return tin_parent_rate / 16;
 }
 
-#define NS_IN_HZ (1000000000UL)
-
 static int s3c_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		int duty_ns, int period_ns)
 {
@@ -650,14 +648,6 @@ static struct platform_driver s3c_pwm_driver = {
 static int __init pwm_init(void)
 {
 	int ret;
-
-	clk_scaler[0] = clk_get(NULL, "pwm-scaler0");
-	clk_scaler[1] = clk_get(NULL, "pwm-scaler1");
-
-	if (IS_ERR(clk_scaler[0]) || IS_ERR(clk_scaler[1])) {
-		pr_err("failed to get scaler clocks\n");
-		return -EINVAL;
-	}
 
 	ret = platform_driver_register(&s3c_pwm_driver);
 	if (ret)
