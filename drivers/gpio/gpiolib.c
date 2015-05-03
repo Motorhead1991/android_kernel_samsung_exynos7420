@@ -136,7 +136,7 @@ static struct gpio_desc *gpio_to_desc(unsigned gpio)
  */
 static int desc_to_gpio(const struct gpio_desc *desc)
 {
-	return desc->chip->base + gpio_chip_hwgpio(desc);
+	return desc - &gpio_desc[0];
 }
 
 
@@ -1214,6 +1214,8 @@ int gpiochip_add(struct gpio_chip *chip)
 		}
 	}
 
+	spin_unlock_irqrestore(&gpio_lock, flags);
+
 #ifdef CONFIG_PINCTRL
 	INIT_LIST_HEAD(&chip->pin_ranges);
 #endif
@@ -1235,6 +1237,9 @@ unlock:
 		chip->label ? : "generic");
 
 	return 0;
+
+unlock:
+	spin_unlock_irqrestore(&gpio_lock, flags);
 fail:
 	/* failures here can mean systems won't boot... */
 	pr_err("gpiochip_add: gpios %d..%d (%s) failed to register\n",

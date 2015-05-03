@@ -52,7 +52,7 @@
 #define SIOCSIFNAME	0x8923		/* set interface name */
 #define	SIOCSIFHWADDR	0x8924		/* set hardware address 	*/
 #define SIOCGIFENCAP	0x8925		/* get/set encapsulations       */
-#define SIOCSIFENCAP	0x8926		
+#define SIOCSIFENCAP	0x8926
 #define SIOCGIFHWADDR	0x8927		/* Get hardware address		*/
 #define SIOCGIFSLAVE	0x8929		/* Driver slaving support	*/
 #define SIOCSIFSLAVE	0x8930
@@ -65,6 +65,7 @@
 #define SIOCDIFADDR	0x8936		/* delete PA address		*/
 #define	SIOCSIFHWBROADCAST	0x8937	/* set hardware broadcast addr	*/
 #define SIOCGIFCOUNT	0x8938		/* get number of devices */
+#define SIOCKILLADDR	0x8939		/* kill sockets with this local addr */
 
 #define SIOCGIFBR	0x8940		/* Bridging support		*/
 #define SIOCSIFBR	0x8941		/* Set bridging options 	*/

@@ -11,9 +11,9 @@
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/errno.h>
+#include <linux/sched_clock.h>
 
 #include <asm/delay.h>
-#include <asm/sched_clock.h>
 
 #include <clocksource/arm_arch_timer.h>
 
@@ -53,6 +53,7 @@ int __init arch_timer_arch_init(void)
 	sched_clock_func = arch_timer_sched_clock;
 	pr_info("sched_clock: ARM arch timer >56 bits at %ukHz, resolution %uns\n",
 		arch_timer_rate / 1000, sched_clock_mult);
+	sched_clock_register(arch_timer_read_counter, 56, arch_timer_rate);
 
 	return 0;
 }

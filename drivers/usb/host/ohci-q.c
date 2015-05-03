@@ -41,12 +41,8 @@ finish_urb(struct ohci_hcd *ohci, struct urb *urb, int status)
 __releases(ohci->lock)
 __acquires(ohci->lock)
 {
-	struct usb_host_endpoint *ep = urb->ep;
-	struct urb_priv *urb_priv;
-
 	// ASSERT (urb->hcpriv != 0);
 
- restart:
 	urb_free_priv (ohci, urb->hcpriv);
 	urb->hcpriv = NULL;
 	if (likely(status == -EINPROGRESS))
@@ -563,6 +559,7 @@ td_fill (struct ohci_hcd *ohci, u32 info,
 		td->hwCBP = cpu_to_hc32 (ohci, data & 0xFFFFF000);
 		*ohci_hwPSWp(ohci, td, 0) = cpu_to_hc16 (ohci,
 						(data & 0x0FFF) | 0xE000);
+		td->ed->last_iso = info & 0xffff;
 	} else {
 		td->hwCBP = cpu_to_hc32 (ohci, data);
 	}
@@ -1023,7 +1020,7 @@ rescan_this:
 			urb_priv->td_cnt++;
 
 			/* if URB is done, clean up */
-			if (urb_priv->td_cnt >= urb_priv->length) {
+			if (urb_priv->td_cnt == urb_priv->length) {
 				modified = completed = 1;
 				finish_urb(ohci, urb, 0);
 			}
@@ -1114,7 +1111,7 @@ static void takeback_td(struct ohci_hcd *ohci, struct td *td)
 	urb_priv->td_cnt++;
 
 	/* If all this urb's TDs are done, call complete() */
-	if (urb_priv->td_cnt >= urb_priv->length)
+	if (urb_priv->td_cnt == urb_priv->length)
 		finish_urb(ohci, urb, status);
 
 	/* clean schedule:  unlink EDs that are no longer busy */

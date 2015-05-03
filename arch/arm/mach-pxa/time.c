@@ -16,6 +16,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/clockchips.h>
+#include <linux/sched_clock.h>
 
 #include <asm/div64.h>
 #include <asm/mach/irq.h>

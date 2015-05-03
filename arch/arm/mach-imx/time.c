@@ -26,8 +26,9 @@
 #include <linux/clockchips.h>
 #include <linux/clk.h>
 #include <linux/err.h>
-
 #include <asm/sched_clock.h>
+#include <linux/sched_clock.h>
+
 #include <asm/mach/time.h>
 
 #include "common.h"

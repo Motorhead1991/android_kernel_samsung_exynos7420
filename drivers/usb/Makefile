@@ -6,6 +6,8 @@
 
 obj-$(CONFIG_USB)		+= core/
 
+obj-$(CONFIG_USB_PHY)		+= phy/
+
 obj-$(CONFIG_USB_DWC3)		+= dwc3/
 
 obj-$(CONFIG_USB_MON)		+= mon/
@@ -56,3 +58,5 @@ obj-$(CONFIG_USB_RENESAS_USBHS)	+= renesas_usbhs/
 obj-$(CONFIG_USB_GADGET)	+= gadget/
 
 obj-$(CONFIG_USB_COMMON)	+= usb-common.o
+
+obj-$(CONFIG_USB_NOTIFY_LAYER)	+= notify/

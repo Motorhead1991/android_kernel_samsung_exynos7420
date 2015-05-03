@@ -26,7 +26,7 @@
 #include <asm/fpsimd.h>
 #include <asm/signal32.h>
 #include <asm/uaccess.h>
-#include <asm/unistd32.h>
+#include <asm/unistd.h>
 
 struct compat_sigcontext {
 	/* We always set these two fields to 0 */
@@ -211,6 +211,14 @@ int copy_siginfo_to_user32(compat_siginfo_t __user *to, siginfo_t *from)
 		err |= __put_user(from->si_uid, &to->si_uid);
 		err |= __put_user((compat_uptr_t)(unsigned long)from->si_ptr, &to->si_ptr);
 		break;
+#ifdef __ARCH_SIGSYS
+	case __SI_SYS:
+		err |= __put_user((compat_uptr_t)(unsigned long)
+				from->si_call_addr, &to->si_call_addr);
+		err |= __put_user(from->si_syscall, &to->si_syscall);
+		err |= __put_user(from->si_arch, &to->si_arch);
+		break;
+#endif
 	default: /* this is just in case for now ... */
 		err |= __put_user(from->si_pid, &to->si_pid);
 		err |= __put_user(from->si_uid, &to->si_uid);
@@ -474,12 +482,13 @@ static void compat_setup_return(struct pt_regs *regs, struct k_sigaction *ka,
 	/* Check if the handler is written for ARM or Thumb */
 	thumb = handler & 1;
 
-	if (thumb) {
+	if (thumb)
 		spsr |= COMPAT_PSR_T_BIT;
-		spsr &= ~COMPAT_PSR_IT_MASK;
-	} else {
+	else
 		spsr &= ~COMPAT_PSR_T_BIT;
-	}
+
+	/* The IT state must be cleared for both ARM and Thumb-2 */
+	spsr &= ~COMPAT_PSR_IT_MASK;
 
 	if (ka->sa.sa_flags & SA_RESTORER) {
 		retcode = ptr_to_compat(ka->sa.sa_restorer);

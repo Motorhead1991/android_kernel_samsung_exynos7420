@@ -61,6 +61,7 @@ extern inline void *return_address(unsigned int level)
 #define CALLER_ADDR4 ((unsigned long)return_address(4))
 #define CALLER_ADDR5 ((unsigned long)return_address(5))
 #define CALLER_ADDR6 ((unsigned long)return_address(6))
+#define ftrace_return_addr(n) return_address(n)
 
 #endif /* ifndef __ASSEMBLY__ */
 

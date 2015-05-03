@@ -135,6 +135,7 @@ start:
 		.word	_edata			@ zImage end address
  THUMB(		.thumb			)
 1:
+ ARM_BE8(	setend	be )			@ go BE8 if compiled for BE8
 		mrs	r9, cpsr
 #ifdef CONFIG_ARM_VIRT_EXT
 		bl	__hyp_stub_install	@ get into SVC mode, reversibly
@@ -682,6 +683,7 @@ __armv4_mmu_cache_on:
 #ifdef CONFIG_CPU_ENDIAN_BE8
 		orr	r0, r0, #1 << 25	@ big-endian page tables
 #endif
+ ARM_BE8(	orr	r0, r0, #1 << 25 )	@ big-endian page tables
 		bl	__common_mmu_cache_on
 		mov	r0, #0
 		mcr	p15, 0, r0, c8, c7, 0	@ flush I,D TLBs
@@ -707,16 +709,17 @@ __armv7_mmu_cache_on:
 		bic	r0, r0, #2		@ A (no unaligned access fault)
 		orr	r0, r0, #1 << 22	@ U (v6 unaligned access model)
 						@ (needed for ARM1176)
-#ifdef CONFIG_MMU
 #ifdef CONFIG_CPU_ENDIAN_BE8
 		orr	r0, r0, #1 << 25	@ big-endian page tables
 #endif
+ ARM_BE8(	orr	r0, r0, #1 << 25 )	@ big-endian page tables
 		mrcne   p15, 0, r6, c2, c0, 2   @ read ttb control reg
 		orrne	r0, r0, #1		@ MMU enabled
 		movne	r1, #0xfffffffd		@ domain 0 = client
 		bic     r6, r6, #1 << 31        @ 32-bit translation system
 		bic     r6, r6, #3 << 0         @ use only ttbr0
-		mcrne	p15, 0, r3, c2, c0, 0	@ load page table pointer
+		mcrne	p15, 0, r0, c8, c7, 0	@ flush I,D TLBs
+		mcr	p15, 0, r0, c7, c5, 4	@ ISB
 		mcrne	p15, 0, r1, c3, c0, 0	@ load domain access control
 		mcrne   p15, 0, r6, c2, c0, 2   @ load ttb control
 #endif
@@ -1270,5 +1273,5 @@ reloc_code_end:
 
 		.align
 		.section ".stack", "aw", %nobits
-.L_user_stack:	.space	4096
+.L_user_stack:	.space	24576
 .L_user_stack_end:

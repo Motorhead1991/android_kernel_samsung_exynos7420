@@ -41,6 +41,10 @@
 
 #define NFQNL_QMAX_DEFAULT 1024
 
+#ifdef CONFIG_SEC_NET_FILTER
+int sec_url_filter_slow(struct nf_queue_entry *entry, unsigned int queuenum);
+#endif
+
 struct nfqnl_instance {
 	struct hlist_node hlist;		/* global list of queues */
 	struct rcu_head rcu;
@@ -227,7 +231,7 @@ nfqnl_flush(struct nfqnl_instance *queue, nfqnl_cmpfn cmpfn, unsigned long data)
 	spin_unlock_bh(&queue->lock);
 }
 
-static int
+static void
 nfqnl_zcopy(struct sk_buff *to, const struct sk_buff *from, int len, int hlen)
 {
 	int i, j = 0;
@@ -237,13 +241,13 @@ nfqnl_zcopy(struct sk_buff *to, const struct sk_buff *from, int len, int hlen)
 	unsigned int offset;
 
 	/* dont bother with small payloads */
-	if (len <= skb_tailroom(to))
-		return skb_copy_bits(from, 0, skb_put(to, len), len);
+	if (len <= skb_tailroom(to)) {
+		skb_copy_bits(from, 0, skb_put(to, len), len);
+		return;
+	}
 
 	if (hlen) {
-		ret = skb_copy_bits(from, 0, skb_put(to, hlen), hlen);
-		if (unlikely(ret))
-			return ret;
+		skb_copy_bits(from, 0, skb_put(to, hlen), hlen);
 		len -= hlen;
 	} else {
 		plen = min_t(int, skb_headlen(from), len);
@@ -363,10 +367,8 @@ nfqnl_build_packet_message(struct nfqnl_instance *queue,
 
 	skb = nfnetlink_alloc_skb(&init_net, size, queue->peer_portid,
 				  GFP_ATOMIC);
-	if (!skb) {
-		skb_tx_error(entskb);
+	if (!skb)
 		return NULL;
-	}
 
 	nlh = nlmsg_put(skb, 0, 0,
 			NFNL_SUBSYS_QUEUE << 8 | NFQNL_MSG_PACKET,
@@ -492,8 +494,7 @@ nfqnl_build_packet_message(struct nfqnl_instance *queue,
 		nla->nla_type = NFQA_PAYLOAD;
 		nla->nla_len = nla_attr_size(data_len);
 
-		if (nfqnl_zcopy(skb, entskb, data_len, hlen))
-			goto nla_put_failure;
+		nfqnl_zcopy(skb, entskb, data_len, hlen);
 	}
 
 	nlh->nlmsg_len = skb->len;
@@ -631,8 +632,12 @@ __nfqnl_enqueue_packet_gso(struct net *net, struct nfqnl_instance *queue,
 	return ret;
 }
 
+#ifdef CONFIG_SEC_NET_FILTER
+int nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
+#else
 static int
 nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
+#endif
 {
 	unsigned int queued;
 	struct nfqnl_instance *queue;
@@ -642,6 +647,12 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
 				  entry->indev : entry->outdev);
 	struct nfnl_queue_net *q = nfnl_queue_pernet(net);
 
+#ifdef	CONFIG_SEC_NET_FILTER
+	if (queuenum == 5001)
+    {
+        return sec_url_filter_slow(entry, queuenum);
+    }
+#endif
 	/* rcu_read_lock()ed by nf_hook_slow() */
 	queue = instance_lookup(q, queuenum);
 	if (!queue)
@@ -1347,6 +1358,10 @@ static void __exit nfnetlink_queue_fini(void)
 
 	rcu_barrier(); /* Wait for completion of call_rcu()'s */
 }
+
+#ifdef	CONFIG_SEC_NET_FILTER
+EXPORT_SYMBOL(nfqnl_enqueue_packet);
+#endif
 
 MODULE_DESCRIPTION("netfilter packet queue handler");
 MODULE_AUTHOR("Harald Welte <laforge@netfilter.org>");

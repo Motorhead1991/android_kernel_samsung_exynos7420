@@ -17,12 +17,13 @@
  * published by the Free Software Foundation.
 */
 
-/include/ "skeleton.dtsi"
-/include/ "exynos5250-pinctrl.dtsi"
+#include "exynos5.dtsi"
+#include "exynos5250-pinctrl.dtsi"
+
+#include <dt-bindings/clk/exynos-audss-clk.h>
 
 / {
 	compatible = "samsung,exynos5250";
-	interrupt-parent = <&gic>;
 
 	aliases {
 		spi0 = &spi_0;
@@ -54,6 +55,20 @@
 	chipid@10000000 {
 		compatible = "samsung,exynos4210-chipid";
 		reg = <0x10000000 0x100>;
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a15";
+			reg = <0>;
+		};
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a15";
+			reg = <1>;
+		};
 	};
 
 	pd_gsc: gsc-power-domain@0x10044000 {
@@ -81,6 +96,11 @@
 		      <0x10484000 0x2000>,
 		      <0x10486000 0x2000>;
 		interrupts = <1 9 0xf04>;
+
+	clock_audss: audss-clock-controller@3810000 {
+		compatible = "samsung,exynos5250-audss-clock";
+		reg = <0x03810000 0x0C>;
+		#clock-cells = <1>;
 	};
 
 	timer {
@@ -186,9 +206,9 @@
 		compatible = "samsung,s3c6410-rtc";
 		reg = <0x101E0000 0x100>;
 		interrupts = <0 43 0>, <0 44 0>;
+		status = "disabled";
 		clocks = <&clock 337>;
 		clock-names = "rtc";
-		status = "disabled";
 	};
 
 	tmu@10060000 {
@@ -406,30 +426,30 @@
 
 	dwmmc_0: dwmmc0@12200000 {
 		compatible = "samsung,exynos5250-dw-mshc";
-		reg = <0x12200000 0x1000>;
 		interrupts = <0 75 0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
+		reg = <0x12200000 0x1000>;
 		clocks = <&clock 280>, <&clock 139>;
 		clock-names = "biu", "ciu";
 	};
 
 	dwmmc_1: dwmmc1@12210000 {
 		compatible = "samsung,exynos5250-dw-mshc";
-		reg = <0x12210000 0x1000>;
 		interrupts = <0 76 0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
+		reg = <0x12210000 0x1000>;
 		clocks = <&clock 281>, <&clock 140>;
 		clock-names = "biu", "ciu";
 	};
 
 	dwmmc_2: dwmmc2@12220000 {
 		compatible = "samsung,exynos5250-dw-mshc";
-		reg = <0x12220000 0x1000>;
 		interrupts = <0 77 0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
+		reg = <0x12220000 0x1000>;
 		clocks = <&clock 282>, <&clock 141>;
 		clock-names = "biu", "ciu";
 	};
@@ -451,6 +471,10 @@
 			&pdma0 9
 			&pdma0 8>;
 		dma-names = "tx", "rx", "tx-sec";
+		clocks = <&clock_audss EXYNOS_I2S_BUS>,
+			<&clock_audss EXYNOS_I2S_BUS>,
+			<&clock_audss EXYNOS_SCLK_I2S>;
+		clock-names = "iis", "i2s_opclk0", "i2s_opclk1";
 		samsung,supports-6ch;
 		samsung,supports-rstclr;
 		samsung,supports-secdai;
@@ -465,6 +489,8 @@
 		dmas = <&pdma1 12
 			&pdma1 11>;
 		dma-names = "tx", "rx";
+		clocks = <&clock 307>, <&clock 157>;
+		clock-names = "iis", "i2s_opclk0";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2s1_bus>;
 	};
@@ -475,8 +501,40 @@
 		dmas = <&pdma0 12
 			&pdma0 11>;
 		dma-names = "tx", "rx";
+		clocks = <&clock 308>, <&clock 158>;
+		clock-names = "iis", "i2s_opclk0";
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2s2_bus>;
+	};
+
+	usb@12000000 {
+		compatible = "samsung,exynos5250-dwusb3";
+		clocks = <&clock 286>;
+		clock-names = "usbdrd30";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		dwc3 {
+			compatible = "synopsys,dwc3";
+			reg = <0x12000000 0x10000>;
+			interrupts = <0 72 0>;
+			usb-phy = <&usb2_phy &usb3_phy>;
+		};
+	};
+
+	usb3_phy: usbphy@12100000 {
+		compatible = "samsung,exynos5250-usb3phy";
+		reg = <0x12100000 0x100>;
+		clocks = <&clock 1>, <&clock 286>;
+		clock-names = "ext_xtal", "usbdrd30";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		usbphy-sys {
+			reg = <0x10040704 0x8>;
+		};
 	};
 
 	usb@12110000 {
@@ -497,7 +555,7 @@
 		clock-names = "usbhost";
 	};
 
-	usbphy@12130000 {
+	usb2_phy: usbphy@12130000 {
 		compatible = "samsung,exynos5250-usb2phy";
 		reg = <0x12130000 0x100>;
 		clocks = <&clock 1>, <&clock 285>;
@@ -621,6 +679,8 @@
 		reg = <0x145b0000 0x1000>;
 		interrupts = <10 3>;
 		interrupt-parent = <&combiner>;
+		clocks = <&clock 342>;
+		clock-names = "dp";
 		#address-cells = <1>;
 		#size-cells = <0>;
 

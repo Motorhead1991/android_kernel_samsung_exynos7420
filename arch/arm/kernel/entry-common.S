@@ -392,6 +392,7 @@ ENTRY(vector_swi)
 #ifdef CONFIG_CPU_ENDIAN_BE8
 	rev	r10, r10			@ little endian instruction
 #endif
+ ARM_BE8(rev	r10, r10)			@ little endian instruction
 
 #elif defined(CONFIG_AEABI)
 

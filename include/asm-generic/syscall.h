@@ -155,5 +155,5 @@ void syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
  * Architectures which permit CONFIG_HAVE_ARCH_SECCOMP_FILTER must
  * provide an implementation of this.
  */
-int syscall_get_arch(struct task_struct *task, struct pt_regs *regs);
+int syscall_get_arch(void);
 #endif	/* _ASM_SYSCALL_H */

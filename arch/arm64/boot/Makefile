@@ -14,13 +14,27 @@
 # Based on the ia64 boot/Makefile.
 #
 
+include $(srctree)/arch/arm64/boot/dts/Makefile
+
 targets := Image Image.gz
+
+DTB_NAMES := $(subst $\",,$(CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES))
+ifneq ($(DTB_NAMES),)
+DTB_LIST := $(addsuffix .dtb,$(DTB_NAMES))
+else
+DTB_LIST := $(dtb-y)
+endif
+DTB_OBJS := $(addprefix $(obj)/dts/,$(DTB_LIST))
+DTS_TARGET := $(patsubst "%",%,$(call CONFIG_DTS_TARGET,$(1)))
 
 $(obj)/Image: vmlinux FORCE
 	$(call if_changed,objcopy)
 
 $(obj)/Image.gz: $(obj)/Image FORCE
 	$(call if_changed,gzip)
+
+$(obj)/Image.gz-dtb: $(obj)/Image.gz $(DTB_OBJS) FORCE
+	$(call if_changed,cat)
 
 install: $(obj)/Image
 	$(CONFIG_SHELL) $(srctree)/$(src)/install.sh $(KERNELRELEASE) \
@@ -29,3 +43,13 @@ install: $(obj)/Image
 zinstall: $(obj)/Image.gz
 	$(CONFIG_SHELL) $(srctree)/$(src)/install.sh $(KERNELRELEASE) \
 	$(obj)/Image.gz System.map "$(INSTALL_PATH)"
+
+targets += $(DTB_LIST)
+
+# Rule to build device tree blobs
+$(obj)/%.dtb: $(src)/dts/$(DTS_TARGET)/%.dts FORCE
+	$(call if_changed_dep,dtc)
+
+$(obj)/dtbs: $(DTB_OBJS)
+
+clean-files := *.dtb
