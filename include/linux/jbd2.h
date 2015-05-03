@@ -314,6 +314,7 @@ enum jbd_state_bits {
 	BH_State,		/* Pins most journal_head state */
 	BH_JournalHead,		/* Pins bh->b_private and jh->b_bh */
 	BH_Shadow,		/* IO on shadow buffer is running */
+        BH_Unshadow,            /* Dummy bit, for BJ_Shadow wakeup filtering */
 	BH_Verified,		/* Metadata block has been verified ok */
 	BH_JBDPrivateStart,	/* First bit available for private use by FS */
 };
