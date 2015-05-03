@@ -1,6 +1,7 @@
 /*
  * Arizona core driver
  *
+ * Copyright 2014 CirrusLogic, Inc.
  * Copyright 2012 Wolfson Microelectronics plc
  *
  * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
@@ -415,8 +416,6 @@ static int arizona_exec_with_sysclk(struct arizona* arizona,
 	unsigned int fll, sysclk;
 	int ret, err;
 
-	regcache_cache_bypass(arizona->regmap, true);
-
 	/* Cache existing FLL and SYSCLK settings */
 	ret = regmap_read(arizona->regmap, ARIZONA_FLL1_CONTROL_1, &fll);
 	if (ret != 0) {
@@ -470,8 +469,6 @@ err_fll:
 			"Failed to re-apply old FLL settings: %d\n",
 			err);
 	}
-
-	regcache_cache_bypass(arizona->regmap, false);
 
 	if (ret != 0)
 		return ret;
@@ -770,6 +767,7 @@ err:
 
 static int arizona_runtime_suspend(struct device *dev)
 {
+	struct arizona *arizona = dev_get_drvdata(dev);
 	int ret;
 
 	dev_dbg(arizona->dev, "Entering AoD mode\n");
@@ -1334,19 +1332,6 @@ static struct mfd_cell clearwater_devs[] = {
 	{ .name = "arizona-gpio" },
 	{ .name = "arizona-haptics" },
 	{ .name = "arizona-pwm" },
-	{ .name = "wm5110-codec" },
-};
-
-int arizona_dev_init(struct arizona *arizona)
-{
-	struct device *dev = arizona->dev;
-	const char *type_name;
-	unsigned int reg, val;
-	int (*apply_patch)(struct arizona *) = NULL;
-	int ret, i;
-
-	dev_set_drvdata(arizona->dev, arizona);
-	mutex_init(&arizona->clk_lock);
 	{ .name = "clearwater-codec" },
 };
 
@@ -2107,10 +2092,6 @@ int arizona_dev_init(struct arizona *arizona)
 		dev_err(arizona->dev, "Failed to add subdevices: %d\n", ret);
 		goto err_irq;
 	}
-
-#ifdef CONFIG_PM_RUNTIME
-	regulator_disable(arizona->dcvdd);
-#endif
 
 	return 0;
 
