@@ -540,6 +540,44 @@ static int __init arm64_dma_init(void)
 }
 arch_initcall(arm64_dma_init);
 
+static void *arm64_swiotlb_alloc_coherent(struct device *dev, size_t size,
+                                          dma_addr_t *dma_handle, gfp_t flags,
+                                          struct dma_attrs *attrs)
+{
+        if (IS_ENABLED(CONFIG_ZONE_DMA32) &&
+            dev->coherent_dma_mask <= DMA_BIT_MASK(32))
+                flags |= GFP_DMA32;
+        return swiotlb_alloc_coherent(dev, size, dma_handle, flags);
+}
+
+static void arm64_swiotlb_free_coherent(struct device *dev, size_t size,
+                                        void *vaddr, dma_addr_t dma_handle,
+                                        struct dma_attrs *attrs)
+{
+        swiotlb_free_coherent(dev, size, vaddr, dma_handle);
+}
+
+static struct dma_map_ops arm64_swiotlb_dma_ops = {
+        .alloc = arm64_swiotlb_alloc_coherent,
+        .free = arm64_swiotlb_free_coherent,
+        .map_page = swiotlb_map_page,
+        .unmap_page = swiotlb_unmap_page,
+        .map_sg = swiotlb_map_sg_attrs,
+        .unmap_sg = swiotlb_unmap_sg_attrs,
+        .sync_single_for_cpu = swiotlb_sync_single_for_cpu,
+        .sync_single_for_device = swiotlb_sync_single_for_device,
+        .sync_sg_for_cpu = swiotlb_sync_sg_for_cpu,
+        .sync_sg_for_device = swiotlb_sync_sg_for_device,
+        .dma_supported = swiotlb_dma_supported,
+        .mapping_error = swiotlb_dma_mapping_error,
+ };
+
+void __init arm64_swiotlb_init(void)
+{
+         dma_ops = &arm64_swiotlb_dma_ops;
+         swiotlb_init(1);
+}
+
 #define PREALLOC_DMA_DEBUG_ENTRIES	4096
 
 static int __init dma_debug_do_init(void)
