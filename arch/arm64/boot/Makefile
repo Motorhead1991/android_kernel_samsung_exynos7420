@@ -52,4 +52,4 @@ $(obj)/%.dtb: $(src)/dts/$(DTS_TARGET)/%.dts FORCE
 
 $(obj)/dtbs: $(DTB_OBJS)
 
-clean-files := *.dtb
+clean-files := dts/*.dtb dt.img

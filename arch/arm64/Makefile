@@ -75,7 +75,9 @@ endif
 
 KBUILD_DTBS	:= dtbs
 
-all:	$(KBUILD_IMAGE) $(KBUILD_DTBS)
+KBUILD_DTIMG := dtimage
+
+all:	$(KBUILD_IMAGE) $(KBUILD_DTBS) $(KBUILD_DTIMG)
 
 boot := arch/arm64/boot
 
@@ -90,6 +92,9 @@ zinstall install: vmlinux
 
 dtbs: scripts
 	$(Q)$(MAKE) $(build)=$(boot)/dts dtbs
+
+dtimage: dtbs
+	$(Q)$(srctree)/tools/dtbtool -o $(boot)/dt.img $(boot)/dts/
 
 PHONY += vdso_install
 vdso_install:
@@ -111,4 +116,6 @@ define archhelp
   echo  '                  Install using (your) ~/bin/installkernel or'
   echo  '                  (distribution) /sbin/installkernel or'
   echo  '                  install to $$(INSTALL_PATH) and run lilo'
+  echo  '  dtimage       - Uses the provides dtbtool to compile device'
+  echo  '                  trees into a single image'
 endef
