@@ -221,11 +221,11 @@ restart:
 	while (!released && transaction->t_checkpoint_io_list) {
 		jh = transaction->t_checkpoint_io_list;
 		bh = jh2bh(jh);
-		/*if (!jbd_trylock_bh_state(bh)) {
+		if (!jbd_trylock_bh_state(bh)) {
 			jbd_sync_bh(journal, bh);
 			spin_lock(&journal->j_list_lock);
 			goto restart;
-		}*/
+		}
 		get_bh(bh);
 		if (buffer_locked(bh)) {
 			spin_unlock(&journal->j_list_lock);
@@ -399,11 +399,11 @@ restart:
 
 			jh = transaction->t_checkpoint_list;
 			bh = jh2bh(jh);
-			/*if (!jbd_trylock_bh_state(bh)) {
+			if (!jbd_trylock_bh_state(bh)) {
 				jbd_sync_bh(journal, bh);
 				retry = 1;
 				break;
-			}*/
+			}
 			retry = __process_buffer(journal, jh, bhs,&batch_count);
 			if (retry < 0 && !result)
 				result = retry;
@@ -569,7 +569,7 @@ static int journal_clean_one_cp_list(struct journal_head *jh, int *released)
 		jh = next_jh;
 		next_jh = jh->b_cpnext;
 		/* Use trylock because of the ranking */
-		/*if (jbd_trylock_bh_state(jh2bh(jh))) {
+		if (jbd_trylock_bh_state(jh2bh(jh))) {
 			ret = __try_to_free_cp_buf(jh);
 			if (ret) {
 				freed++;
@@ -578,7 +578,7 @@ static int journal_clean_one_cp_list(struct journal_head *jh, int *released)
 					return freed;
 				}
 			}
-		}*/
+		}
 		/*
 		 * This function only frees up some memory
 		 * if possible so we dont have an obligation

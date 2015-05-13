@@ -102,7 +102,7 @@ static void release_data_buffer(struct buffer_head *bh)
  * held.  For ranking reasons we must trylock.  If we lose, schedule away and
  * return 0.  j_list_lock is dropped in this case.
  */
-/*static int inverted_lock(journal_t *journal, struct buffer_head *bh)
+static int inverted_lock(journal_t *journal, struct buffer_head *bh)
 {
 	if (!jbd_trylock_bh_state(bh)) {
 		spin_unlock(&journal->j_list_lock);
@@ -110,7 +110,7 @@ static void release_data_buffer(struct buffer_head *bh)
 		return 0;
 	}
 	return 1;
-}*/
+}
 
 /* Done it all: now write the commit record.  We should have
  * cleaned up our previous buffers by now, so if we are in abort
@@ -230,10 +230,10 @@ write_out_data:
 			locked = 1;
 		}
 		/* We have to get bh_state lock. Again out of order, sigh. */
-		/*if (!inverted_lock(journal, bh)) {
+		if (!inverted_lock(journal, bh)) {
 			jbd_lock_bh_state(bh);
 			spin_lock(&journal->j_list_lock);
-		}*/
+		}
 		/* Someone already cleaned up the buffer? */
 		if (!buffer_jbd(bh) || bh2jh(bh) != jh
 			|| jh->b_transaction != commit_transaction
@@ -477,11 +477,11 @@ void journal_commit_transaction(journal_t *journal)
 			SetPageError(bh->b_page);
 			err = -EIO;
 		}
-		/*if (!inverted_lock(journal, bh)) {
+		if (!inverted_lock(journal, bh)) {
 			put_bh(bh);
 			spin_lock(&journal->j_list_lock);
 			continue;
-		}*/
+		}
 		if (buffer_jbd(bh) && bh2jh(bh) == jh &&
 		    jh->b_transaction == commit_transaction &&
 		    jh->b_jlist == BJ_Locked)
